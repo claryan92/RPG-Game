@@ -10,6 +10,13 @@ namespace RPG_Game.Core
 {
 	public class DungeonMap : Map
 	{
+		public List<Rectangle> Rooms;
+
+		public DungeonMap()
+		{
+			//Initialize the list of rooms when we create a new DungeonMap
+			Rooms = new List<Rectangle>();
+		}
 		//Draw method is called each time the map is updated
 		//renders all of the symbols/colors for each cell to the map subconsole
 		public void Draw(RLConsole mapConsole)

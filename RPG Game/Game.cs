@@ -7,6 +7,7 @@ using RLNET;
 using RPG_Game.Core;
 using RogueSharp;
 using RPG_Game.Systems;
+using RogueSharp.Random;
 
 namespace RPG_Game
 {
@@ -43,11 +44,20 @@ namespace RPG_Game
 		private static readonly int _inventoryHeight = 11;
 		private static RLConsole _inventoryConsole;
 
+		//Singleton of IRandom used throughout the game when generating random numbers
+		public static IRandom Random { get; set; }
+
 		public static void Main()
 		{
+			//Establish the seed for the random number generator from the current time
+			int seed = (int)DateTime.UtcNow.Ticks;
+			Random = new DotNetRandom(seed);
+
+			//Title will appear at the top of the console window and will include the seed for the level
+			string consoleTitle = $"RPG_Game - Level 1 - Seed {seed}";
+		
 			CommandSystem = new CommandSystem();
 			string fontFileName = "terminal8x8.png";
-			string consoleTitle = "RPG_Game - Level 1";
 			//Tells RLNet to use the bitmap font and that each tile is 8x8 pixels
 			_rootConsole = new RLRootConsole(fontFileName, _screenWidth, _screenHeight, 8, 8, 1f, consoleTitle);
 
@@ -58,12 +68,24 @@ namespace RPG_Game
 			_inventoryConsole = new RLConsole(_inventoryWidth, _inventoryHeight);
 
 			Player = new Player();
-			MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight);
+			MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 20, 13, 7);
 			DungeonMap = mapGenerator.CreateMap();
 			DungeonMap.UpdatePlayerFieldOfView();
 
 			_rootConsole.Update += OnRootConsoleUpdate;
 			_rootConsole.Render += OnRootConsoleRender;
+
+			//Set background color and text color for each console
+
+			_messageConsole.SetBackColor(0, 0, _messageWidth, _messageWidth, Swatch.DbDeepWater);
+			_messageConsole.Print(1, 1, "Messages", Colors.TextHeading);
+
+			_statConsole.SetBackColor(0, 0, _statWidth, _statHeight, Swatch.DbOldStone);
+			_statConsole.Print(1, 1, "Stats", Colors.TextHeading);
+
+			_inventoryConsole.SetBackColor(0, 0, _inventoryWidth, _inventoryHeight, Swatch.DbWood);
+			_inventoryConsole.Print(1, 1, "Inventory", Colors.TextHeading);
+
 			_rootConsole.Run();
 		}
 
@@ -101,16 +123,7 @@ namespace RPG_Game
 			{
 				_renderRequired = true;
 			}
-			//Set background color and text color for each console
-
-			_messageConsole.SetBackColor(0, 0, _messageWidth, _messageWidth, Swatch.DbDeepWater);
-			_messageConsole.Print(1, 1, "Messages", Colors.TextHeading);
-
-			_statConsole.SetBackColor(0, 0, _statWidth, _statHeight, Swatch.DbOldStone);
-			_statConsole.Print(1, 1, "Stats", Colors.TextHeading);
-
-			_inventoryConsole.SetBackColor(0, 0, _inventoryWidth, _inventoryHeight, Swatch.DbWood);
-			_inventoryConsole.Print(1, 1, "Inventory", Colors.TextHeading);
+			
 			
 		}
 
