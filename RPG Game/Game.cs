@@ -12,6 +12,9 @@ namespace RPG_Game
 {
 	public class Game
 	{
+		private static bool _renderRequired = true;
+		public static CommandSystem CommandSystem { get; set; }
+
 		public static Player Player { get; set; }
 		public static DungeonMap DungeonMap { get; private set; }
 		
@@ -42,6 +45,7 @@ namespace RPG_Game
 
 		public static void Main()
 		{
+			CommandSystem = new CommandSystem();
 			string fontFileName = "terminal8x8.png";
 			string consoleTitle = "RPG_Game - Level 1";
 			//Tells RLNet to use the bitmap font and that each tile is 8x8 pixels
@@ -65,7 +69,38 @@ namespace RPG_Game
 
 		private static void OnRootConsoleUpdate(object sender, UpdateEventArgs e)
 		{
+			bool didPlayerAct = false;
+			RLKeyPress keyPress = _rootConsole.Keyboard.GetKeyPress();
 
+			if (keyPress != null)
+			{
+				if (keyPress.Key == RLKey.Up)
+				{
+					didPlayerAct = CommandSystem.MovePlayer(Direction.Up);
+				}
+				else if (keyPress.Key == RLKey.Down)
+				{
+					didPlayerAct = CommandSystem.MovePlayer(Direction.Down);
+				}
+
+				else if (keyPress.Key == RLKey.Left)
+				{
+					didPlayerAct = CommandSystem.MovePlayer(Direction.Left);
+				}
+				else if (keyPress.Key == RLKey.Right)
+				{
+					didPlayerAct = CommandSystem.MovePlayer(Direction.Right);
+				}
+				else if (keyPress.Key == RLKey.Escape)
+				{
+					_rootConsole.Close();
+				}
+			}
+
+			if (didPlayerAct)
+			{
+				_renderRequired = true;
+			}
 			//Set background color and text color for each console
 
 			_messageConsole.SetBackColor(0, 0, _messageWidth, _messageWidth, Swatch.DbDeepWater);
@@ -81,16 +116,22 @@ namespace RPG_Game
 
 		private static void OnRootConsoleRender(object sender, UpdateEventArgs e)
 		{
-			//Blit the sub console to the root console in the correct locations
-			RLConsole.Blit(_mapConsole, 0, 0, _mapWidth, _mapHeight, _rootConsole, 0, _inventoryHeight);
-			RLConsole.Blit(_statConsole, 0, 0, _statWidth, _statHeight, _rootConsole, _mapWidth, 0);
-			RLConsole.Blit(_messageConsole, 0, 0, _messageWidth, _messageHeight, _rootConsole, 0, _screenHeight - _messageHeight);
-			RLConsole.Blit(_inventoryConsole, 0, 0, _inventoryWidth, _inventoryHeight, _rootConsole, 0, 0);
+			//Don't bother redrawing all of the consoles if nothing has changed.
+			if (_renderRequired)
+			{
+				//Blit the sub console to the root console in the correct locations
+				RLConsole.Blit(_mapConsole, 0, 0, _mapWidth, _mapHeight, _rootConsole, 0, _inventoryHeight);
+				RLConsole.Blit(_statConsole, 0, 0, _statWidth, _statHeight, _rootConsole, _mapWidth, 0);
+				RLConsole.Blit(_messageConsole, 0, 0, _messageWidth, _messageHeight, _rootConsole, 0, _screenHeight - _messageHeight);
+				RLConsole.Blit(_inventoryConsole, 0, 0, _inventoryWidth, _inventoryHeight, _rootConsole, 0, 0);
 
-			//Draws the console
-			_rootConsole.Draw();
-			DungeonMap.Draw(_mapConsole);
-			Player.Draw(_mapConsole, DungeonMap);
+				//Draws the console
+				_rootConsole.Draw();
+				DungeonMap.Draw(_mapConsole);
+				Player.Draw(_mapConsole, DungeonMap);
+
+				_renderRequired = false;
+			}
 		}
 
 	}

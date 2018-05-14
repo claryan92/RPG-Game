@@ -54,6 +54,33 @@ namespace RPG_Game.Core
 			}
 		}
 
+		//Returns true when able to place the Actor on the cell and false if not
+		public bool SetActorPosition(Actor actor, int x, int y)
+		{
+			//Only allow placement if cell is walkable
+			if (GetCell(x, y).IsWalkable)
+			{
+				SetIsWalkable(actor.X, actor.Y, true);
+				//Update the actor's position
+				actor.X = x;
+				actor.Y = y;
+				//The new cell the actor is on is now not walkable
+				SetIsWalkable(actor.X, actor.Y, false);
+				if (actor is Player)
+				{
+					UpdatePlayerFieldOfView();
+				}
+				return true;
+			}
+			return false;
+		}
+
+		public void SetIsWalkable(int x, int y, bool isWalkable)
+		{
+			Cell cell = GetCell(x, y);
+			SetCellProperties(cell.X, cell.Y, cell.IsTransparent, isWalkable, cell.IsExplored);
+		}
+
 		//Method will be called any time the player moves, and will update the field of view
 		public void UpdatePlayerFieldOfView()
 		{
