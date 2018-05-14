@@ -53,5 +53,19 @@ namespace RPG_Game.Core
 				}
 			}
 		}
+
+		//Method will be called any time the player moves, and will update the field of view
+		public void UpdatePlayerFieldOfView()
+		{
+			Player player = Game.Player;
+			ComputeFov(player.X, player.Y, player.Awareness, true);
+			foreach (Cell cell in GetAllCells())
+			{
+				if (IsInFov(cell.X, cell.Y))
+				{
+					SetCellProperties(cell.X, cell.Y, cell.IsTransparent, cell.IsWalkable, true);
+				}
+			}
+		}
 	}
 }

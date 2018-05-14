@@ -12,6 +12,7 @@ namespace RPG_Game
 {
 	public class Game
 	{
+		public static Player Player { get; set; }
 		public static DungeonMap DungeonMap { get; private set; }
 		
 		//Screen height and width are in # of tiles
@@ -52,8 +53,10 @@ namespace RPG_Game
 			_statConsole = new RLConsole(_statWidth, _statHeight);
 			_inventoryConsole = new RLConsole(_inventoryWidth, _inventoryHeight);
 
+			Player = new Player();
 			MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight);
 			DungeonMap = mapGenerator.CreateMap();
+			DungeonMap.UpdatePlayerFieldOfView();
 
 			_rootConsole.Update += OnRootConsoleUpdate;
 			_rootConsole.Render += OnRootConsoleRender;
@@ -64,8 +67,6 @@ namespace RPG_Game
 		{
 
 			//Set background color and text color for each console
-			_mapConsole.SetBackColor(0, 0, _mapWidth, _mapHeight, Colors.FloorBackground);
-			_mapConsole.Print(1, 1, "Map", Colors.TextHeading);
 
 			_messageConsole.SetBackColor(0, 0, _messageWidth, _messageWidth, Swatch.DbDeepWater);
 			_messageConsole.Print(1, 1, "Messages", Colors.TextHeading);
@@ -89,6 +90,7 @@ namespace RPG_Game
 			//Draws the console
 			_rootConsole.Draw();
 			DungeonMap.Draw(_mapConsole);
+			Player.Draw(_mapConsole, DungeonMap);
 		}
 
 	}
