@@ -18,6 +18,7 @@ namespace RPG_Game
 
 		public static Player Player { get; set; }
 		public static DungeonMap DungeonMap { get; private set; }
+		public static MessageLog MessageLog { get; set; }
 		
 		//Screen height and width are in # of tiles
 		private static readonly int _screenWidth = 100;
@@ -76,8 +77,9 @@ namespace RPG_Game
 
 			//Set background color and text color for each console
 
-			_messageConsole.SetBackColor(0, 0, _messageWidth, _messageWidth, Swatch.DbDeepWater);
-			_messageConsole.Print(1, 1, "Messages", Colors.TextHeading);
+			MessageLog = new MessageLog();
+			MessageLog.Add("The rogue arrives on level 1");
+			MessageLog.Add($"Level created with seed '{seed}'");
 
 			_statConsole.SetBackColor(0, 0, _statWidth, _statHeight, Swatch.DbOldStone);
 			_statConsole.Print(1, 1, "Stats", Colors.TextHeading);
@@ -141,6 +143,7 @@ namespace RPG_Game
 				_rootConsole.Draw();
 				DungeonMap.Draw(_mapConsole);
 				Player.Draw(_mapConsole, DungeonMap);
+				MessageLog.Draw(_messageConsole);
 
 				_renderRequired = false;
 			}
