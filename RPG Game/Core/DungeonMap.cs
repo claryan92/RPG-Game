@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using RogueSharp;
 using RLNET;
+using RPG_Game.Systems;
 
 namespace RPG_Game.Core
 {
@@ -88,6 +89,13 @@ namespace RPG_Game.Core
 			SetCellProperties(cell.X, cell.Y, cell.IsTransparent, isWalkable, cell.IsExplored);
 		}
 
+		//Called by MapGenerator to add the player to the map
+		public void AddPlayer(Player player)
+		{
+			Game.Player = player;
+			SetIsWalkable(player.X, player.Y, false);
+			UpdatePlayerFieldOfView();
+		}
 		//Method will be called any time the player moves, and will update the field of view
 		public void UpdatePlayerFieldOfView()
 		{

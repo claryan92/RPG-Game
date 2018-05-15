@@ -67,7 +67,6 @@ namespace RPG_Game
 			_statConsole = new RLConsole(_statWidth, _statHeight);
 			_inventoryConsole = new RLConsole(_inventoryWidth, _inventoryHeight);
 
-			Player = new Player();
 			MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 20, 13, 7);
 			DungeonMap = mapGenerator.CreateMap();
 			DungeonMap.UpdatePlayerFieldOfView();
