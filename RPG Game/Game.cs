@@ -143,6 +143,7 @@ namespace RPG_Game
 				_rootConsole.Draw();
 				DungeonMap.Draw(_mapConsole);
 				Player.Draw(_mapConsole, DungeonMap);
+				Player.DrawStats(_statConsole);
 				MessageLog.Draw(_messageConsole);
 
 				_renderRequired = false;
