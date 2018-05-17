@@ -133,6 +133,9 @@ namespace RPG_Game
 			//Don't bother redrawing all of the consoles if nothing has changed.
 			if (_renderRequired)
 			{
+				_mapConsole.Clear();
+				_statConsole.Clear();
+				_messageConsole.Clear();
 				//Blit the sub console to the root console in the correct locations
 				RLConsole.Blit(_mapConsole, 0, 0, _mapWidth, _mapHeight, _rootConsole, 0, _inventoryHeight);
 				RLConsole.Blit(_statConsole, 0, 0, _statWidth, _statHeight, _rootConsole, _mapWidth, 0);
@@ -141,7 +144,7 @@ namespace RPG_Game
 
 				//Draws the console
 				_rootConsole.Draw();
-				DungeonMap.Draw(_mapConsole);
+				DungeonMap.Draw(_mapConsole, _statConsole);
 				Player.Draw(_mapConsole, DungeonMap);
 				Player.DrawStats(_statConsole);
 				MessageLog.Draw(_messageConsole);
