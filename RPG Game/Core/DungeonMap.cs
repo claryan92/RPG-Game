@@ -22,18 +22,26 @@ namespace RPG_Game.Core
 		}
 		//Draw method is called each time the map is updated
 		//renders all of the symbols/colors for each cell to the map subconsole
-		public void Draw(RLConsole mapConsole)
+		public void Draw(RLConsole mapConsole, RLConsole statConsole)
 		{
-			mapConsole.Clear();
 			foreach (Cell cell in GetAllCells())
 			{
 				SetConsoleSymbolForCell(mapConsole, cell);
 			}
+			//Index for the monster stat position
+			int i = 0;
 
 			//Iterate through each monster on the map and draw it after drawing the cells
 			foreach (Monster monster in _monsters)
 			{
-				monster.Draw(mapConsole, this);
+				//When the monster is in the FOV draw the monster's stats
+				if (IsInFov(monster.X, monster.Y))
+				{
+					monster.Draw(mapConsole, this);
+					//Pass in the index to DrawStats and increment it afterwards
+					monster.DrawStats(statConsole, i);
+					i++;
+				}
 			}
 		}
 
