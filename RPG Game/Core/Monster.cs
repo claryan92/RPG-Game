@@ -4,11 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RLNET;
+using RPG_Game.Behaviors;
+using RPG_Game.Systems;
 
 namespace RPG_Game.Core
 {
 	public class Monster : Actor
 	{
+		public int? TurnsAlerted { get; set; }
+
 		public void DrawStats(RLConsole statConsole, int position)
 		{
 			int yPosition = 13 + (position * 2);
@@ -22,6 +26,12 @@ namespace RPG_Game.Core
 			statConsole.SetBackColor(3, yPosition, width, 1, Swatch.Primary);
 			statConsole.SetBackColor(3 + width, yPosition, remainingWidth, 1, Swatch.PrimaryDarkest);
 			statConsole.Print(2, yPosition, $":{Name}", Swatch.DbLight);
+		}
+
+		public virtual void PerformAction(CommandSystem commandSystem)
+		{
+			var behavior = new StandardMoveAndAttack();
+			behavior.Act(this, commandSystem);
 		}
 	}
 }

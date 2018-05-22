@@ -111,6 +111,7 @@ namespace RPG_Game.Core
 			Game.Player = player;
 			SetIsWalkable(player.X, player.Y, false);
 			UpdatePlayerFieldOfView();
+			Game.SchedulingSystem.Add(player);
 		}
 		//Method will be called any time the player moves, and will update the field of view
 		public void UpdatePlayerFieldOfView()
@@ -130,12 +131,14 @@ namespace RPG_Game.Core
 		{
 			_monsters.Add(monster);
 			SetIsWalkable(monster.X, monster.Y, false);
+			Game.SchedulingSystem.Add(monster);
 		}
 
 		public void RemoveMonster(Monster monster)
 		{
 			_monsters.Remove(monster);
 			SetIsWalkable(monster.X, monster.Y, true);
+			Game.SchedulingSystem.Remove(monster);
 		}
 
 		public Monster GetMonsterAt(int x, int y)

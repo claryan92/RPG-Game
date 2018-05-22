@@ -12,14 +12,7 @@ using RogueSharp.Random;
 namespace RPG_Game
 {
 	public class Game
-	{
-		private static bool _renderRequired = true;
-		public static CommandSystem CommandSystem { get; set; }
-
-		public static Player Player { get; set; }
-		public static DungeonMap DungeonMap { get; private set; }
-		public static MessageLog MessageLog { get; set; }
-		
+	{	
 		//Screen height and width are in # of tiles
 		private static readonly int _screenWidth = 100;
 		private static readonly int _screenHeight = 70;
@@ -45,6 +38,14 @@ namespace RPG_Game
 		private static readonly int _inventoryHeight = 11;
 		private static RLConsole _inventoryConsole;
 
+		private static bool _renderRequired = true;
+
+		public static Player Player { get; set; }
+		public static DungeonMap DungeonMap { get; private set; }
+		public static MessageLog MessageLog { get; private set; }
+		public static CommandSystem CommandSystem { get; private set; }
+		public static SchedulingSystem SchedulingSystem { get; private set; }
+
 		//Singleton of IRandom used throughout the game when generating random numbers
 		public static IRandom Random { get; set; }
 
@@ -56,7 +57,7 @@ namespace RPG_Game
 
 			//Title will appear at the top of the console window and will include the seed for the level
 			string consoleTitle = $"RPG_Game - Level 1 - Seed {seed}";
-		
+			SchedulingSystem = new SchedulingSystem();
 			CommandSystem = new CommandSystem();
 			string fontFileName = "terminal8x8.png";
 			//Tells RLNet to use the bitmap font and that each tile is 8x8 pixels
@@ -95,37 +96,44 @@ namespace RPG_Game
 			bool didPlayerAct = false;
 			RLKeyPress keyPress = _rootConsole.Keyboard.GetKeyPress();
 
-			if (keyPress != null)
+			if (CommandSystem.IsPlayerTurn)
 			{
-				if (keyPress.Key == RLKey.Up)
+				if (keyPress != null)
 				{
-					didPlayerAct = CommandSystem.MovePlayer(Direction.Up);
-				}
-				else if (keyPress.Key == RLKey.Down)
-				{
-					didPlayerAct = CommandSystem.MovePlayer(Direction.Down);
+					if (keyPress.Key == RLKey.Up)
+					{
+						didPlayerAct = CommandSystem.MovePlayer(Direction.Up);
+					}
+					else if (keyPress.Key == RLKey.Down)
+					{
+						didPlayerAct = CommandSystem.MovePlayer(Direction.Down);
+					}
+
+					else if (keyPress.Key == RLKey.Left)
+					{
+						didPlayerAct = CommandSystem.MovePlayer(Direction.Left);
+					}
+					else if (keyPress.Key == RLKey.Right)
+					{
+						didPlayerAct = CommandSystem.MovePlayer(Direction.Right);
+					}
+					else if (keyPress.Key == RLKey.Escape)
+					{
+						_rootConsole.Close();
+					}
 				}
 
-				else if (keyPress.Key == RLKey.Left)
+				if (didPlayerAct)
 				{
-					didPlayerAct = CommandSystem.MovePlayer(Direction.Left);
-				}
-				else if (keyPress.Key == RLKey.Right)
-				{
-					didPlayerAct = CommandSystem.MovePlayer(Direction.Right);
-				}
-				else if (keyPress.Key == RLKey.Escape)
-				{
-					_rootConsole.Close();
+					_renderRequired = true;
+					CommandSystem.EndPlayerTurn();
 				}
 			}
-
-			if (didPlayerAct)
+			else
 			{
+				CommandSystem.ActivateMonsters();
 				_renderRequired = true;
-			}
-			
-			
+			}	
 		}
 
 		private static void OnRootConsoleRender(object sender, UpdateEventArgs e)

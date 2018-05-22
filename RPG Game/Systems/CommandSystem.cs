@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using RLNET;
 using RogueSharp;
 using RogueSharp.DiceNotation;
+using RPG_Game.Interfaces;
 using RPG_Game.Core;
 
 namespace RPG_Game.Systems
@@ -14,6 +15,8 @@ namespace RPG_Game.Systems
 	//Return false when the player could not move
 	public class CommandSystem
 	{
+		public bool IsPlayerTurn { get; set; }
+
 		public bool MovePlayer(Direction direction)
 		{
 			int x = Game.Player.X;
@@ -57,6 +60,43 @@ namespace RPG_Game.Systems
 				return true;
 			}
 			return false;
+		}
+
+		public void EndPlayerTurn()
+		{
+			IsPlayerTurn = false;
+		}
+
+		public void ActivateMonsters()
+		{
+			IScheduleable scheduleable = Game.SchedulingSystem.Get();
+			if (scheduleable is Player)
+			{
+				IsPlayerTurn = true;
+				Game.SchedulingSystem.Add(Game.Player);
+			}
+			else
+			{
+				Monster monster = scheduleable as Monster;
+
+				if (monster != null)
+				{
+					monster.PerformAction(this);
+					Game.SchedulingSystem.Add(monster);
+				}
+				ActivateMonsters();
+			}
+		}
+
+		public void MoveMonster(Monster monster, Cell cell)
+		{
+			if (!Game.DungeonMap.SetActorPosition(monster, cell.X, cell.Y))
+			{
+				if (Game.Player.X == cell.X && Game.Player.Y == cell.Y)
+				{
+					Attack(monster, Game.Player);
+				}
+			}
 		}
 
 		public void Attack(Actor attacker, Actor defender)

@@ -9,7 +9,7 @@ using RogueSharp;
 
 namespace RPG_Game.Core
 {
-	public class Actor : IActor, IDrawable
+	public class Actor : IActor, IDrawable, IScheduleable
 	{
 		//IActor
 		private int _attack;
@@ -162,6 +162,15 @@ namespace RPG_Game.Core
 			else
 			{
 				console.Set(X, Y, Colors.Floor, Colors.FloorBackground, '.');
+			}
+		}
+
+		//IScheduleable
+		public int Time
+		{
+			get
+			{
+				return Speed;
 			}
 		}
 	}
