@@ -91,6 +91,7 @@ namespace RPG_Game.Systems
 			foreach (Rectangle room in _map.Rooms)
 			{
 				CreateRoom(room);
+				CreateDoors(room);
 			}
 
 			PlacePlayer();
@@ -128,6 +129,74 @@ namespace RPG_Game.Systems
 			{
 				_map.SetCellProperties(xPosition, y, true, true);
 			}
+		}
+
+		private void CreateDoors(Rectangle room)
+		{
+			//The boundaries of the room
+			int xMin = room.Left;
+			int xMax = room.Right;
+			int yMin = room.Top;
+			int yMax = room.Bottom;
+
+			//put the rooms border cells into a list
+			List<Cell> borderCells = _map.GetCellsAlongLine(xMin, yMin, xMax, yMin).ToList();
+			borderCells.AddRange(_map.GetCellsAlongLine(xMin, yMin, xMin, yMax));
+			borderCells.AddRange(_map.GetCellsAlongLine(xMin, yMax, xMax, yMax));
+			borderCells.AddRange(_map.GetCellsAlongLine(xMax, yMin, xMax, yMax));
+
+			//Go through each room's border cells and look for lactions to place doors
+			foreach (Cell cell in borderCells)
+			{
+				if (IsPotentialDoor(cell))
+				{
+					//A door must block the FOV when it is closed
+					_map.SetCellProperties(cell.X, cell.Y, false, true);
+					_map.Doors.Add(new Door
+					{
+						X = cell.X,
+						Y = cell.Y,
+						IsOpen = false
+					});
+				}
+			}
+		}
+
+		//Checks to see if a cell is a candidate for door placement
+		private bool IsPotentialDoor(Cell cell)
+		{
+			//If cell is a wall it is not a good place for a door
+			if (!cell.IsWalkable)
+			{
+				return false;
+			}
+
+			//Store references to all of the neighboring cells
+			Cell right = _map.GetCell(cell.X + 1, cell.Y);
+			Cell left = _map.GetCell(cell.X - 1, cell.Y);
+			Cell top = _map.GetCell(cell.X, cell.Y - 1);
+			Cell bottom = _map.GetCell(cell.X, cell.Y + 1);
+
+			//Check that there is not already a door there
+			if (_map.GetDoor(cell.X, cell.Y) != null ||
+				_map.GetDoor(right.X, right.Y) != null ||
+				_map.GetDoor(left.X, left.Y) != null ||
+				_map.GetDoor(top.X, top.Y) != null ||
+				_map.GetDoor(bottom.X, bottom.Y) != null)
+			{
+				return false;
+			}
+			//Check if the left or right side is a good spot for the door
+			if (right.IsWalkable && left.IsWalkable && !top.IsWalkable && !bottom.IsWalkable)
+			{
+				return true;
+			}
+			//Check if the top or bottom is a good spot for the door
+			if (!right.IsWalkable && !left.IsWalkable && top.IsWalkable && bottom.IsWalkable)
+			{
+				return true;
+			}
+			return false;
 		}
 
 		// Find the center of the first room that we created and place the Player there

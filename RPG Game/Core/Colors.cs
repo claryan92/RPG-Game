@@ -25,5 +25,10 @@ namespace RPG_Game.Core
 
 		public static RLColor Player = Swatch.DbLight;
 		public static RLColor KoboldColor = Swatch.DbBrightWood;
+
+		public static RLColor DoorBackground = Swatch.ComplimentDarkest;
+		public static RLColor Door = Swatch.ComplimentLighter;
+		public static RLColor DoorBackgroundFOV = Swatch.ComplimentDarker;
+		public static RLColor DoorFov = Swatch.ComplimentLightest;
 	}
 }

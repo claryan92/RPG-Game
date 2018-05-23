@@ -11,7 +11,8 @@ namespace RPG_Game.Core
 {
 	public class DungeonMap : Map
 	{
-		public List<Rectangle> Rooms;
+		public List<Rectangle> Rooms { get; set; }
+		public List<Door> Doors { get; set; }
 		private readonly List<Monster> _monsters;
 
 		public DungeonMap()
@@ -19,6 +20,7 @@ namespace RPG_Game.Core
 			//Initialize the list of rooms when we create a new DungeonMap
 			Rooms = new List<Rectangle>();
 			_monsters = new List<Monster>();
+			Doors = new List<Door>();
 		}
 		//Draw method is called each time the map is updated
 		//renders all of the symbols/colors for each cell to the map subconsole
@@ -28,9 +30,13 @@ namespace RPG_Game.Core
 			{
 				SetConsoleSymbolForCell(mapConsole, cell);
 			}
+
+			foreach (Door door in Doors)
+			{
+				door.Draw(mapConsole, this);
+			}
 			//Index for the monster stat position
 			int i = 0;
-
 			//Iterate through each monster on the map and draw it after drawing the cells
 			foreach (Monster monster in _monsters)
 			{
@@ -90,6 +96,8 @@ namespace RPG_Game.Core
 				actor.Y = y;
 				//The new cell the actor is on is now not walkable
 				SetIsWalkable(actor.X, actor.Y, false);
+				//Try to open a door if one exists
+				OpenDoor(actor, x, y);
 				if (actor is Player)
 				{
 					UpdatePlayerFieldOfView();
@@ -97,6 +105,25 @@ namespace RPG_Game.Core
 				return true;
 			}
 			return false;
+		}
+
+		public Door GetDoor(int x, int y)
+		{
+			return Doors.SingleOrDefault(d => d.X == x && d.Y == y);
+		}
+
+		//Actor opens the door at the x, y position
+		private void OpenDoor(Actor actor, int x, int y)
+		{
+			Door door = GetDoor(x, y);
+			if (door != null && door.IsOpen)
+			{
+				door.IsOpen = true;
+				var cell = GetCell(x, y);
+				//Once the door is opened it should be marked as transparent and no longer block the FOV
+				SetCellProperties(x, y, true, cell.IsWalkable, cell.IsExplored);
+				Game.MessageLog.Add($"{actor.Name} opened a door");
+			}
 		}
 
 		public void SetIsWalkable(int x, int y, bool isWalkable)
