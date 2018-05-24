@@ -12,7 +12,9 @@ using RogueSharp.Random;
 namespace RPG_Game
 {
 	public class Game
-	{	
+	{
+		private static int _mapLevel = 1;
+
 		//Screen height and width are in # of tiles
 		private static readonly int _screenWidth = 100;
 		private static readonly int _screenHeight = 70;
@@ -56,7 +58,7 @@ namespace RPG_Game
 			Random = new DotNetRandom(seed);
 
 			//Title will appear at the top of the console window and will include the seed for the level
-			string consoleTitle = $"RPG_Game - Level 1 - Seed {seed}";
+			string consoleTitle = $"RPG_Game - Level {_mapLevel} - Seed {seed}";
 			SchedulingSystem = new SchedulingSystem();
 			CommandSystem = new CommandSystem();
 			string fontFileName = "terminal8x8.png";
@@ -69,7 +71,7 @@ namespace RPG_Game
 			_statConsole = new RLConsole(_statWidth, _statHeight);
 			_inventoryConsole = new RLConsole(_inventoryWidth, _inventoryHeight);
 
-			MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 20, 13, 7);
+			MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 20, 13, 7, _mapLevel);
 			DungeonMap = mapGenerator.CreateMap();
 			DungeonMap.UpdatePlayerFieldOfView();
 
@@ -120,6 +122,18 @@ namespace RPG_Game
 					else if (keyPress.Key == RLKey.Escape)
 					{
 						_rootConsole.Close();
+					}
+					else if (keyPress.Key == RLKey.Period)
+					{
+						if (DungeonMap.CanMoveDownToNextLevel())
+						{
+							MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 20, 13, 7, ++_mapLevel);
+							DungeonMap = mapGenerator.CreateMap();
+							MessageLog = new MessageLog();
+							CommandSystem = new CommandSystem();
+							_rootConsole.Title = $"RPG_Game - Level {_mapLevel}";
+							didPlayerAct = true;
+						}
 					}
 				}
 

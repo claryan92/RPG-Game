@@ -13,10 +13,13 @@ namespace RPG_Game.Core
 	{
 		public List<Rectangle> Rooms { get; set; }
 		public List<Door> Doors { get; set; }
+		public Stairs StairsUp { get; set; }
+		public Stairs StairsDown { get; set; }
 		private readonly List<Monster> _monsters;
 
 		public DungeonMap()
 		{
+			Game.SchedulingSystem.Clear();
 			//Initialize the list of rooms when we create a new DungeonMap
 			Rooms = new List<Rectangle>();
 			_monsters = new List<Monster>();
@@ -35,6 +38,10 @@ namespace RPG_Game.Core
 			{
 				door.Draw(mapConsole, this);
 			}
+
+			StairsUp.Draw(mapConsole, this);
+			StairsDown.Draw(mapConsole, this);
+
 			//Index for the monster stat position
 			int i = 0;
 			//Iterate through each monster on the map and draw it after drawing the cells
@@ -205,6 +212,12 @@ namespace RPG_Game.Core
 				}
 			}
 			return false;
+		}
+
+		public bool CanMoveDownToNextLevel()
+		{
+			Player player = Game.Player;
+			return StairsDown.X == player.X && StairsDown.Y == player.Y;
 		}
 	}
 }
